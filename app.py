@@ -6,7 +6,7 @@ from google.genai import types
 app = Flask(__name__)
 
 # Hardcoded API key for explicit, uninterrupted cloud deployment
-client = genai.Client(api_key="PASTE_YOUR_WORKING_API_KEY_HERE")
+client = genai.Client(api_key="AQ.Ab8RN6JFbcli5CRqRAA8xkdVllZQAfWI6OIOn7whu-4YMn8WxQ")
 
 SYSTEM_INSTRUCTION = """
 You are Scholar Bridge, an empathetic, supportive, and knowledgeable AI assistant dedicated to helping underprivileged students find educational resources, courses, diplomas, scholarships, and career paths.
