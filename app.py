@@ -8,7 +8,10 @@ app = Flask(__name__)
 # Hardcoded API Key to ensure it works instantly during your presentation tomorrow
 # Change line 10 in app.py to this:
 import os
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
+# Robust cloud environment initialization lookup block
+env_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+client = genai.Client(api_key=env_key)
 
 # System instructions to give Scholar Bridge its personality and boundaries
 SYSTEM_INSTRUCTION = """
