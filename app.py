@@ -9,9 +9,15 @@ app = Flask(__name__)
 # Change line 10 in app.py to this:
 import os
 
-# Robust cloud environment initialization lookup block
-env_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=env_key)
+# 1. First, check if Render has the key stored in cloud memory
+api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+
+# 2. EMERGENCY LOCAL FALLBACK: If it's not found on the server, use your working key text string
+if not api_key:
+    api_key = "AQ.Ab8RN6JFbcli5CRqRAA8xkdVllZQAfWI6OIOn7whu-4YMn8WxQ"
+
+# 3. Explicitly initialize the client using the resolved key string
+client = genai.Client(api_key=api_key)
 
 # System instructions to give Scholar Bridge its personality and boundaries
 SYSTEM_INSTRUCTION = """
