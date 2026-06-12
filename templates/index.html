@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholar Bridge</title>
+    <!-- Link to style.css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Canvas for Moving Network Vectors -->
+    <canvas id="vectorCanvas"></canvas>
+
+    <!-- Animated Education Background Elements Outside the Box -->
+    <div class="education-bg">
+        <i class="fas fa-graduation-cap edu-icon icon-1"></i>
+        <i class="fas fa-book edu-icon icon-2"></i>
+        <i class="fas fa-school edu-icon icon-3"></i>
+        <i class="fas fa-pencil-alt edu-icon icon-4"></i>
+        <i class="fas fa-award edu-icon icon-5"></i>
+        <i class="fas fa-globe edu-icon icon-6"></i>
+        <i class="fas fa-lightbulb edu-icon icon-7"></i>
+        <i class="fas fa-book-open edu-icon icon-8"></i>
+    </div>
+
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="header-main">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>Scholar Bridge</h1>
+            </div>
+            <p>Your gateway to education, courses, and scholarships</p>
+        </header>
+        
+        <div class="chat-box" id="chat-box">
+            <div class="message bot-message">
+                <strong>Welcome to Scholar Bridge!</strong><br><br>
+                Hello! I am your AI assistant. Tell me about your interests, or ask me about free courses and scholarships. How can I help you today?
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Type your question here..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Moving Vectors Animation Script ---
+        const canvas = document.getElementById('vectorCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particlesArray = [];
+        const numberOfParticles = 40; // Number of moving vector nodes
+
+        // Size canvas to fill window
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Create particle class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Bounce off boundaries
+                if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(2, 132, 199, 0.15)'; // Subtle blue nodes
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize particle array
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        // Draw connecting vector lines
+        function connectParticles() {
+            let maxDistance = 150;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let dx = particlesArray[a].x - particlesArray[b].x;
+                    let dy = particlesArray[a].y - particlesArray[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        // Line opacity fades based on distance
+                        let opacity = (1 - (distance / maxDistance)) * 0.12;
+                        ctx.strokeStyle = `rgba(37, 99, 235, ${opacity})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        // --- Core Chat Functionality Script ---
+        async function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const messageText = inputField.value.trim();
+            if (!messageText) return;
+
+            appendMessage(messageText, "user-message");
+            inputField.value = "";
+
+            const typingId = appendMessage("Scholar Bridge is typing...", "bot-message typing");
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await response.json();
+                
+                document.getElementById(typingId).remove();
+                appendMessage(data.reply, "bot-message");
+            } catch (error) {
+                document.getElementById(typingId).remove();
+                appendMessage("Sorry, I'm having trouble connecting. Please try again.", "bot-message");
+            }
+        }
+
+        function formatText(text) {
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/^\s*\*\s(.*)$/gmd, '• $1');
+            return formatted.replace(/\n/g, '<br>');
+        }
+
+        function appendMessage(text, className) {
+            const chatBox = document.getElementById("chat-box");
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `message ${className}`;
+            msgDiv.id = "msg-" + Date.now();
+            msgDiv.innerHTML = formatText(text);
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return msgDiv.id;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

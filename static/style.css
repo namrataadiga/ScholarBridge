@@ -1,0 +1,216 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bbeeeb 100%); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Vector Canvas Positioning --- */
+#vectorCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Lowest layer background */
+    pointer-events: none;
+}
+
+/* --- Education Floating Background Styling --- */
+.education-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 2; /* Sits over canvas, under chat */
+}
+
+.edu-icon {
+    position: absolute;
+    color: #0284c7;
+    opacity: 0.12;
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Individual placements for icons across the screen */
+.icon-1 { font-size: 5rem; top: 15%; left: 10%; animation-delay: 0s; }
+.icon-2 { font-size: 4rem; top: 70%; left: 12%; animation-delay: 1.5s; }
+.icon-3 { font-size: 5.5rem; top: 10%; right: 12%; animation-delay: 0.5s; }
+.icon-4 { font-size: 3.5rem; top: 75%; right: 15%; animation-delay: 2s; }
+.icon-5 { font-size: 4.5rem; top: 45%; left: 5%; animation-delay: 3s; }
+.icon-6 { font-size: 3.8rem; top: 48%; right: 6%; animation-delay: 1s; }
+.icon-7 { font-size: 3rem; bottom: 8%; left: 45%; animation-delay: 2.5s; }
+.icon-8 { font-size: 4.2rem; top: 4%; left: 50%; animation-delay: 0.8s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(8deg); }
+}
+
+/* --- Box Container Layout --- */
+.chat-container {
+    width: 100%;
+    max-width: 480px;
+    height: 85vh;
+    background: #ffffff;
+    box-shadow: 0 12px 32px rgba(30, 41, 59, 0.12);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    z-index: 3; /* Highest layer sitting on top of background features */
+}
+
+/* --- Polished Blue Header --- */
+.chat-header {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    color: #ffffff;
+    padding: 22px 20px;
+    text-align: center;
+}
+
+.header-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.header-main i {
+    font-size: 1.6rem;
+}
+
+.chat-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.chat-header p {
+    font-size: 0.88rem;
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+/* --- Chat History Window --- */
+.chat-box {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* --- Text & Typography Improvements --- */
+.message {
+    padding: 14px 18px;
+    border-radius: 14px;
+    max-width: 82%;
+    font-size: 0.96rem;
+    line-height: 1.55; 
+    word-wrap: break-word;
+    letter-spacing: 0.01em;
+}
+
+.message strong {
+    font-weight: 600;
+}
+
+/* Bot Message Styling */
+.bot-message {
+    background: #f0f7ff; 
+    color: #1e3a8a;
+    align-self: flex-start;
+    border-top-left-radius: 0px;
+    border: 1px solid #dbeafe;
+}
+
+/* User Message Styling */
+.user-message {
+    background: #2563eb;
+    color: #ffffff;
+    align-self: flex-end;
+    border-top-right-radius: 0px;
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.15);
+}
+
+.typing {
+    font-style: italic;
+    color: #3b82f6;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+}
+
+/* --- Bottom Input Panel --- */
+.chat-input-area {
+    display: flex;
+    padding: 18px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 0.98rem;
+    color: #334155;
+    transition: all 0.2s ease;
+}
+
+.chat-input-area input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    background: #fafafa;
+}
+
+.chat-input-area button {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 0 22px;
+    margin-left: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.98rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s ease;
+}
+
+.chat-input-area button:hover {
+    background: #1d4ed8;
+}
+
+/* Scrollbar styling */
+.chat-box::-webkit-scrollbar {
+    width: 5px;
+}
+.chat-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+.chat-box::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+}
