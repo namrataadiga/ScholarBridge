@@ -6,7 +6,9 @@ from google.genai import types
 app = Flask(__name__)
 
 # Hardcoded API Key to ensure it works instantly during your presentation tomorrow
-client = genai.Client(api_key="AQ.Ab8RN6JFbcli5CRqRAA8xkdVllZQAfWI6OIOn7whu-4YMn8WxQ")
+# Change line 10 in app.py to this:
+import os
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # System instructions to give Scholar Bridge its personality and boundaries
 SYSTEM_INSTRUCTION = """
