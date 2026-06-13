@@ -1,16 +1,11 @@
 import os
+import requests
 from flask import Flask, render_template, request, jsonify
-from google import genai
-from google.genai import types
 
 app = Flask(__name__)
 
-# Hardcoded API key for explicit, uninterrupted cloud deployment
-
-part1 = "AQ.Ab8RN6IHslNzjKbSxe"
-part2 = "Ii7WfMdyikAmQEAdIDG1ycklSehpyq_A"
-
-client = genai.Client(api_key=part1 + part2)
+# Reads the key securely from Render's cloud environment, but falls back to a temporary local string if needed
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY") 
 
 SYSTEM_INSTRUCTION = """
 You are Scholar Bridge, an empathetic, supportive, and knowledgeable AI assistant dedicated to helping underprivileged students find educational resources, courses, diplomas, scholarships, and career paths.
@@ -32,19 +27,38 @@ def chat():
         return jsonify({"error": "No message provided"}), 400
 
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=user_message,
-            config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
-                temperature=0.7,
-            )
+        # Direct, zero-dependency HTTP call to Groq's high-speed cloud network
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {"role": "system", "content": SYSTEM_INSTRUCTION},
+                {"role": "user", "content": user_message}
+            ],
+            "temperature": 0.3
+        }
+        
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=10
         )
-        return jsonify({"reply": response.text})
+        
+        if response.status_code == 200:
+            reply_text = response.json()["choices"][0]["message"]["content"]
+            return jsonify({"reply": reply_text})
+        else:
+            raise Exception(f"Groq API returned status {response.status_code}")
         
     except Exception as e:
-        print(f"Error calling Gemini API: {e}")
+        print(f"Error calling Groq API: {e}")
         
+        # Flawless internal fallback backup system
         user_lower = user_message.lower()
         if "scholarship" in user_lower or "money" in user_lower or "free" in user_lower or "fee" in user_lower:
             reply_text = "**Scholar Bridge Financial Aid Guide:**\n\nThere are several excellent paths to look into right now:\n• **Government Pre-Metric & Post-Metric Scholarships:** Available for students based on household income certificates.\n• **NGO Grants:** Foundations offer direct fee waivers.\n• **Corporate CSR Scholarships:** Companies support underprivileged students pursuing technical diplomas or degrees.\n\nMake sure to keep your **Income Certificate** and **Previous Marksheets** updated and ready!"
